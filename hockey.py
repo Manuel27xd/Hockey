@@ -57,7 +57,7 @@ st.markdown("""
         background: linear-gradient(90deg, #00f3ff, #ec4899);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        font-size: 2.3rem;
+        font-size: 2.2rem;
         margin-bottom: 0px;
         text-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
     }
@@ -65,14 +65,14 @@ st.markdown("""
         text-align: center;
         color: #9ca3af;
         font-size: 0.95rem;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
     }
     </style>
 """, unsafe_allow_html=True)
 
 st.markdown('<h1 class="main-title">🏒 AIR HOCKEY ARCADE PRO</h1>', unsafe_allow_html=True)
 st.markdown(
-    '<p class="sub-title">Tablero adaptado de forma horizontal responsiva para móviles y tamaño arcade clásico para PC.</p>',
+    '<p class="sub-title">Diseño responsivo optimizado para horizontal y vertical en móviles, tablets y PC.</p>',
     unsafe_allow_html=True)
 
 # --- Barra Lateral de Configuración ---
@@ -98,12 +98,12 @@ p2_label = f"IA ({difficulty})" if game_mode == "Jugador vs IA" else "Jugador 2"
 # --- Panel de Instrucciones ---
 with st.expander("📖 Guía de Controles"):
     st.markdown("""
-    - **📱 Móvil / Tablet:** Arrastra tu dedo directamente en el campo para un control preciso adaptado horizontalmente.
-    - **💻 Computadora:** Usa las teclas **`W`, `S`, `A`, `D`** (P1) y **`Flechas`** (P2).
-    - **🤖 IA Activa:** Movimiento dinámico y prevención de bloqueos en esquinas.
+    - **📱 Celular / Tablet:** Gira tu dispositivo en horizontal. El tablero se ajustará automáticamente a tu pantalla y podrás deslizar tu dedo en la mitad izquierda para jugar.
+    - **💻 Computadora:** Teclas **`W`, `S`, `A`, `D`** (Jugador 1) y **`Flechas`** (Jugador 2).
+    - **🤖 Inteligencia Artificial:** Movimiento activo con sistema anti-atasco en esquinas.
     """)
 
-# --- Código HTML, CSS Responsivo y Motor del Juego ---
+# --- Código HTML y Motor del Juego Responsivo en Horizontal ---
 game_html = """
 <!DOCTYPE html>
 <html lang="es">
@@ -111,7 +111,7 @@ game_html = """
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
-    body {
+    html, body {
         background-color: #0b0f19;
         color: white;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -119,6 +119,8 @@ game_html = """
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        width: 100%;
+        height: 100vh;
         margin: 0;
         padding: 0;
         overflow: hidden;
@@ -128,69 +130,44 @@ game_html = """
         display: flex;
         justify-content: space-around;
         align-items: center;
-        background: rgba(31, 41, 55, 0.7);
+        background: rgba(31, 41, 55, 0.75);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 6px 15px;
-        border-radius: 10px;
-        margin-bottom: 8px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        padding: 4px 12px;
+        border-radius: 8px;
+        margin-bottom: 6px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        width: 90%;
+        max-width: 760px;
     }
     .score-box {
         font-weight: bold;
         text-transform: uppercase;
         letter-spacing: 1px;
+        font-size: 13px;
     }
     .p1-text { color: #00f3ff; text-shadow: 0 0 8px rgba(0,243,255,0.5); }
     .p2-text { color: #ff0055; text-shadow: 0 0 8px rgba(255,0,85,0.5); }
-    .score-num { font-weight: 900; margin-left: 6px; }
+    .score-num { font-weight: 900; margin-left: 4px; font-size: 16px; }
 
     .canvas-container {
         display: flex;
         justify-content: center;
         align-items: center;
-    }
-
-    /* ESTILOS PARA COMPUTADORA (Mantener tamaño fijo original) */
-    @media (min-width: 769px) {
-        .hud {
-            width: 760px;
-        }
-        .score-box { font-size: 16px; }
-        .score-num { font-size: 22px; }
-        .canvas-container {
-            width: 760px;
-            height: 380px;
-        }
-        canvas {
-            width: 760px;
-            height: 380px;
-        }
-    }
-
-    /* ESTILOS PARA CELULAR Y TABLET (Ajuste responsivo horizontal) */
-    @media (max-width: 768px) {
-        .hud {
-            width: 95vw;
-        }
-        .score-box { font-size: 13px; }
-        .score-num { font-size: 17px; }
-        .canvas-container {
-            width: 95vw;
-            aspect-ratio: 2 / 1;
-        }
-        canvas {
-            width: 100% !important;
-            height: 100% !important;
-        }
+        width: 95vw;
+        max-width: 760px;
+        max-height: 78vh;
+        aspect-ratio: 2 / 1;
     }
 
     canvas {
         border: 3px solid #1f2937;
         background: radial-gradient(circle, #111827 0%, #030712 100%);
         box-shadow: 0 15px 35px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.8);
-        border-radius: 14px;
+        border-radius: 12px;
         outline: none;
+        width: 100% !important;
+        height: 100% !important;
     }
 </style>
 </head>
@@ -230,7 +207,7 @@ window.onkeydown = e => {
 };
 window.onkeyup = e => { keys[e.key] = false; };
 
-// Control táctil escalado según las dimensiones actuales del canvas
+// Control táctil adaptado a la escala real del canvas responsivo
 function handleTouch(e) {
     e.preventDefault();
     let rect = cv.getBoundingClientRect();
@@ -380,7 +357,7 @@ function draw() {
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 26px sans-serif';
         ctx.textAlign = 'center';
-        let winnerText = s1 > s2 ? "🎉 ¡JUGADOR 1 GANA!" : (mode === "Jugador vs IA" ? "🤖 ¡LA IA TE HA VENCIDO!" : "🎉 ¡JUGADOR 2 GANA!");
+        let winnerText = s1 > s2 ? "🎉 ¡JUGADOR 1 GANA!" : (mode === "Jugador vs IA" ? "🤖 ¡LA IA TE HA VENCIDO!" : "🎉 ¡Jugador 2 GANA!");
         ctx.fillText(winnerText, w/2, h/2 - 10);
 
         ctx.font = '14px sans-serif';
@@ -402,10 +379,10 @@ loop();
 </html>
 """
 
-# Reemplazo de variables
+# Reemplazo de variables de forma segura
 game_html = game_html.replace("GAME_MODE_VAL", str(game_mode))
 game_html = game_html.replace("AI_SPEED_VAL", str(ai_speed))
 game_html = game_html.replace("WINNING_SCORE_VAL", str(winning_score))
 game_html = game_html.replace("P2_LABEL_VAL", str(p2_label))
 
-components.html(game_html, height=450)
+components.html(game_html, height=440)
