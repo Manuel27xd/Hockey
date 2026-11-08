@@ -71,9 +71,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown('<h1 class="main-title">🏒 AIR HOCKEY ARCADE PRO</h1>', unsafe_allow_html=True)
-st.markdown(
-    '<p class="sub-title">Diseño responsivo optimizado para horizontal y vertical en móviles, tablets y PC.</p>',
-    unsafe_allow_html=True)
+st.markdown('<p class="sub-title">Versión estable con motor fluido y control táctil/teclado optimizado.</p>',
+            unsafe_allow_html=True)
 
 # --- Barra Lateral de Configuración ---
 st.sidebar.header("🕹️ Ajustes de Partida")
@@ -98,12 +97,12 @@ p2_label = f"IA ({difficulty})" if game_mode == "Jugador vs IA" else "Jugador 2"
 # --- Panel de Instrucciones ---
 with st.expander("📖 Guía de Controles"):
     st.markdown("""
-    - **📱 Celular / Tablet:** Gira tu dispositivo en horizontal. El tablero se ajustará automáticamente a tu pantalla y podrás deslizar tu dedo en la mitad izquierda para jugar.
-    - **💻 Computadora:** Teclas **`W`, `S`, `A`, `D`** (Jugador 1) y **`Flechas`** (Jugador 2).
-    - **🤖 Inteligencia Artificial:** Movimiento activo con sistema anti-atasco en esquinas.
+    - **📱 Celular / Tablet:** Toca y arrastra el dedo en la mitad izquierda de la pantalla para mover tu paleta.
+    - **💻 Computadora:** Usa las teclas **`W`, `S`, `A`, `D`** (Jugador 1) y las **`Flechas`** (Jugador 2 en modo PvP).
+    - **🤖 Inteligencia Artificial:** Movimiento activo constante y sin bloqueos.
     """)
 
-# --- Código HTML y Motor del Juego Responsivo en Horizontal ---
+# --- Código HTML y Motor del Juego Súper Estable ---
 game_html = """
 <!DOCTYPE html>
 <html lang="es">
@@ -111,7 +110,7 @@ game_html = """
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
-    html, body {
+    body {
         background-color: #0b0f19;
         color: white;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -120,9 +119,8 @@ game_html = """
         align-items: center;
         justify-content: center;
         width: 100%;
-        height: 100vh;
         margin: 0;
-        padding: 0;
+        padding: 5px;
         overflow: hidden;
         touch-action: none;
     }
@@ -130,25 +128,25 @@ game_html = """
         display: flex;
         justify-content: space-around;
         align-items: center;
-        background: rgba(31, 41, 55, 0.75);
+        background: rgba(31, 41, 55, 0.85);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 4px 12px;
-        border-radius: 8px;
-        margin-bottom: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 8px 16px;
+        border-radius: 10px;
+        margin-bottom: 10px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        width: 90%;
+        width: 95%;
         max-width: 760px;
     }
     .score-box {
         font-weight: bold;
         text-transform: uppercase;
         letter-spacing: 1px;
-        font-size: 13px;
+        font-size: 14px;
     }
     .p1-text { color: #00f3ff; text-shadow: 0 0 8px rgba(0,243,255,0.5); }
     .p2-text { color: #ff0055; text-shadow: 0 0 8px rgba(255,0,85,0.5); }
-    .score-num { font-weight: 900; margin-left: 4px; font-size: 16px; }
+    .score-num { font-weight: 900; margin-left: 6px; font-size: 18px; }
 
     .canvas-container {
         display: flex;
@@ -156,7 +154,6 @@ game_html = """
         align-items: center;
         width: 95vw;
         max-width: 760px;
-        max-height: 78vh;
         aspect-ratio: 2 / 1;
     }
 
@@ -164,7 +161,7 @@ game_html = """
         border: 3px solid #1f2937;
         background: radial-gradient(circle, #111827 0%, #030712 100%);
         box-shadow: 0 15px 35px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.8);
-        border-radius: 12px;
+        border-radius: 14px;
         outline: none;
         width: 100% !important;
         height: 100% !important;
@@ -207,7 +204,6 @@ window.onkeydown = e => {
 };
 window.onkeyup = e => { keys[e.key] = false; };
 
-// Control táctil adaptado a la escala real del canvas responsivo
 function handleTouch(e) {
     e.preventDefault();
     let rect = cv.getBoundingClientRect();
@@ -234,6 +230,7 @@ function reset(sc) {
 function update() {
     if (over) return;
 
+    // Movimiento P1 con teclado
     if (keys['w'] || keys['W']) p1.y -= 7;
     if (keys['s'] || keys['S']) p1.y += 7;
     if (keys['a'] || keys['A']) p1.x -= 7;
@@ -248,21 +245,21 @@ function update() {
         if (keys['ArrowLeft']) p2.x -= 7;
         if (keys['ArrowRight']) p2.x += 7;
     } else {
-        let ty = puck.y, tx = puck.x;
-        if (puck.x < w/2) {
-            tx = w * 0.75;
-            ty = (h/2) + Math.sin(Date.now() * 0.005) * 80;
+        // IA Activa y Fluida (Nunca se queda quieta)
+        let targetY = puck.y;
+        let targetX = puck.x;
+        let time = Date.now() * 0.004;
+
+        if (puck.x < w / 2) {
+            targetX = (w * 0.75) + Math.cos(time) * 40;
+            targetY = (h / 2) + Math.sin(time * 1.5) * 80;
         } else {
-            if (puck.y < 80 || puck.y > h - 80) {
-                tx = puck.x + 20;
-                ty = puck.y < 80 ? puck.y + 45 : puck.y - 45;
-            } else {
-                tx = Math.max(w/2 + p2.r, Math.min(w - p2.r, puck.x + 10));
-                ty = puck.y;
-            }
+            targetX = Math.max(w / 2 + p2.r + 5, Math.min(w - p2.r, puck.x + 10));
+            targetY = puck.y;
         }
-        p2.y += (ty - p2.y) * aiSpd;
-        p2.x += (tx - p2.x) * aiSpd;
+
+        p2.y += (targetY - p2.y) * aiSpd;
+        p2.x += (targetX - p2.x) * aiSpd;
     }
 
     p2.x = Math.max(w/2 + p2.r, Math.min(w - p2.r, p2.x));
@@ -288,16 +285,23 @@ function update() {
         } else { puck.x = w - puck.r; puck.vx *= -1; }
     }
 
-    col(p1); col(p2);
-    puck.vx *= 0.995; puck.vy *= 0.995;
+    col(p1); 
+    col(p2);
+
+    // Fricción suave
+    puck.vx *= 0.995; 
+    puck.vy *= 0.995;
 }
 
 function col(p) {
-    let dx = puck.x - p.x, dy = puck.y - p.y, dist = Math.sqrt(dx*dx + dy*dy);
+    let dx = puck.x - p.x;
+    let dy = puck.y - p.y;
+    let dist = Math.sqrt(dx*dx + dy*dy);
     if (dist < puck.r + p.r) {
         let ang = Math.atan2(dy, dx);
         let spd = Math.min(puck.max, Math.max(5, Math.sqrt(puck.vx*puck.vx + puck.vy*puck.vy) * 1.05));
-        puck.vx = Math.cos(ang) * spd; puck.vy = Math.sin(ang) * spd;
+        puck.vx = Math.cos(ang) * spd; 
+        puck.vy = Math.sin(ang) * spd;
         puck.x = p.x + Math.cos(ang) * (p.r + puck.r);
         puck.y = p.y + Math.sin(ang) * (p.r + puck.r);
     }
@@ -306,12 +310,14 @@ function col(p) {
 function draw() {
     ctx.clearRect(0, 0, w, h);
 
+    // Línea central
     ctx.strokeStyle = 'rgba(55, 65, 81, 0.6)';
     ctx.lineWidth = 4;
     ctx.setLineDash([10, 10]);
     ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h); ctx.stroke();
     ctx.setLineDash([]);
 
+    // Círculo central
     ctx.beginPath();
     ctx.arc(w/2, h/2, 55, 0, Math.PI*2);
     ctx.strokeStyle = 'rgba(55, 65, 81, 0.4)';
@@ -320,6 +326,7 @@ function draw() {
 
     let gt = (h - gw)/2;
 
+    // Porterías neón
     ctx.shadowBlur = 15;
     ctx.shadowColor = '#00f3ff';
     ctx.strokeStyle = '#00f3ff'; ctx.lineWidth = 6;
@@ -331,18 +338,21 @@ function draw() {
     ctx.beginPath(); ctx.moveTo(w, gt); ctx.lineTo(w, gt + gw); ctx.stroke();
     ctx.shadowBlur = 0;
 
+    // Jugador 1
     ctx.shadowBlur = 15;
     ctx.shadowColor = '#00f3ff';
     ctx.beginPath(); ctx.arc(p1.x, p1.y, p1.r, 0, Math.PI*2);
     ctx.fillStyle = '#00f3ff'; ctx.fill();
     ctx.lineWidth = 3; ctx.strokeStyle = '#ffffff'; ctx.stroke();
 
+    // IA / Jugador 2
     ctx.shadowBlur = 15;
     ctx.shadowColor = '#ff0055';
     ctx.beginPath(); ctx.arc(p2.x, p2.y, p2.r, 0, Math.PI*2);
     ctx.fillStyle = '#ff0055'; ctx.fill();
     ctx.lineWidth = 3; ctx.strokeStyle = '#ffffff'; ctx.stroke();
 
+    // Disco
     ctx.shadowBlur = 15;
     ctx.shadowColor = '#fbbf24';
     ctx.beginPath(); ctx.arc(puck.x, puck.y, puck.r, 0, Math.PI*2);
@@ -351,7 +361,7 @@ function draw() {
     ctx.shadowBlur = 0;
 
     if (over) {
-        ctx.fillStyle = 'rgba(3, 7, 18, 0.85)';
+        ctx.fillStyle = 'rgba(3, 7, 18, 0.9)';
         ctx.fillRect(0, 0, w, h);
 
         ctx.fillStyle = '#ffffff';
@@ -385,4 +395,5 @@ game_html = game_html.replace("AI_SPEED_VAL", str(ai_speed))
 game_html = game_html.replace("WINNING_SCORE_VAL", str(winning_score))
 game_html = game_html.replace("P2_LABEL_VAL", str(p2_label))
 
-components.html(game_html, height=440)
+# Altura generosa para evitar cortes en el componente visual
+components.html(game_html, height=480)
