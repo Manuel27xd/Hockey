@@ -1,14 +1,14 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-# Configuración de página en modo ancho para aprovechar pantallas móviles y de PC
+# Configuración de página en modo ancho
 st.set_page_config(
     page_title="Air Hockey Arcade Pro",
     page_icon="🏒",
     layout="wide"
 )
 
-# Estilos CSS avanzados para la interfaz y barra lateral
+# Estilos CSS generales y de la barra lateral
 st.markdown("""
     <style>
     .stApp {
@@ -71,8 +71,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown('<h1 class="main-title">🏒 AIR HOCKEY ARCADE PRO</h1>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">Adaptado automáticamente a la pantalla de tu celular, tablet o computadora.</p>',
-            unsafe_allow_html=True)
+st.markdown(
+    '<p class="sub-title">Tablero adaptado de forma horizontal responsiva para móviles y tamaño arcade clásico para PC.</p>',
+    unsafe_allow_html=True)
 
 # --- Barra Lateral de Configuración ---
 st.sidebar.header("🕹️ Ajustes de Partida")
@@ -97,12 +98,12 @@ p2_label = f"IA ({difficulty})" if game_mode == "Jugador vs IA" else "Jugador 2"
 # --- Panel de Instrucciones ---
 with st.expander("📖 Guía de Controles"):
     st.markdown("""
-    - **📱 En Celular / Tablet:** Toca y desliza el dedo en la mitad izquierda de la pantalla para mover tu paleta al instante. El tablero se escala solo a tu pantalla.
-    - **💻 En Computadora:** Teclas **`W`, `S`, `A`, `D`** para el Jugador 1 y **`Flechas`** para el Jugador 2.
-    - **🤖 Inteligencia Artificial:** Activa con sistema anti-atasco en esquinas.
+    - **📱 Móvil / Tablet:** Arrastra tu dedo directamente en el campo para un control preciso adaptado horizontalmente.
+    - **💻 Computadora:** Usa las teclas **`W`, `S`, `A`, `D`** (P1) y **`Flechas`** (P2).
+    - **🤖 IA Activa:** Movimiento dinámico y prevención de bloqueos en esquinas.
     """)
 
-# --- Código HTML y Motor del Juego Responsivo (Seguro sin f-string) ---
+# --- Código HTML, CSS Responsivo y Motor del Juego ---
 game_html = """
 <!DOCTYPE html>
 <html lang="es">
@@ -119,50 +120,77 @@ game_html = """
         align-items: center;
         justify-content: center;
         margin: 0;
-        padding: 5px;
+        padding: 0;
         overflow: hidden;
         touch-action: none;
     }
     .hud {
         display: flex;
         justify-content: space-around;
-        width: 100%;
-        max-width: 760px;
+        align-items: center;
         background: rgba(31, 41, 55, 0.7);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 6px 10px;
+        padding: 6px 15px;
         border-radius: 10px;
         margin-bottom: 8px;
         box-shadow: 0 8px 20px rgba(0,0,0,0.5);
     }
     .score-box {
-        font-size: 14px;
         font-weight: bold;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
     .p1-text { color: #00f3ff; text-shadow: 0 0 8px rgba(0,243,255,0.5); }
     .p2-text { color: #ff0055; text-shadow: 0 0 8px rgba(255,0,85,0.5); }
-    .score-num { font-size: 18px; font-weight: 900; margin-left: 4px; }
+    .score-num { font-weight: 900; margin-left: 6px; }
 
-    /* Contenedor responsivo para ajustar el tablero perfectamente a celulares */
     .canvas-container {
-        width: 100%;
-        max-width: 760px;
-        aspect-ratio: 2 / 1;
         display: flex;
         justify-content: center;
         align-items: center;
     }
+
+    /* ESTILOS PARA COMPUTADORA (Mantener tamaño fijo original) */
+    @media (min-width: 769px) {
+        .hud {
+            width: 760px;
+        }
+        .score-box { font-size: 16px; }
+        .score-num { font-size: 22px; }
+        .canvas-container {
+            width: 760px;
+            height: 380px;
+        }
+        canvas {
+            width: 760px;
+            height: 380px;
+        }
+    }
+
+    /* ESTILOS PARA CELULAR Y TABLET (Ajuste responsivo horizontal) */
+    @media (max-width: 768px) {
+        .hud {
+            width: 95vw;
+        }
+        .score-box { font-size: 13px; }
+        .score-num { font-size: 17px; }
+        .canvas-container {
+            width: 95vw;
+            aspect-ratio: 2 / 1;
+        }
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+    }
+
     canvas {
         border: 3px solid #1f2937;
         background: radial-gradient(circle, #111827 0%, #030712 100%);
         box-shadow: 0 15px 35px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.8);
         border-radius: 14px;
         outline: none;
-        width: 100% !important;
-        height: 100% !important;
     }
 </style>
 </head>
@@ -202,7 +230,7 @@ window.onkeydown = e => {
 };
 window.onkeyup = e => { keys[e.key] = false; };
 
-// --- SOPORTE TÁCTIL FLUIDO PARA MÓVILES Y TABLETS ---
+// Control táctil escalado según las dimensiones actuales del canvas
 function handleTouch(e) {
     e.preventDefault();
     let rect = cv.getBoundingClientRect();
@@ -213,7 +241,6 @@ function handleTouch(e) {
     let touchX = (touch.clientX - rect.left) * scaleX;
     let touchY = (touch.clientY - rect.top) * scaleY;
 
-    // Restricción estricta para P1 en su mitad izquierda
     p1.x = Math.max(p1.r, Math.min(w/2 - p1.r, touchX));
     p1.y = Math.max(p1.r, Math.min(h - p1.r, touchY));
 }
@@ -375,10 +402,10 @@ loop();
 </html>
 """
 
-# Inyección segura de variables
+# Reemplazo de variables
 game_html = game_html.replace("GAME_MODE_VAL", str(game_mode))
 game_html = game_html.replace("AI_SPEED_VAL", str(ai_speed))
 game_html = game_html.replace("WINNING_SCORE_VAL", str(winning_score))
 game_html = game_html.replace("P2_LABEL_VAL", str(p2_label))
 
-components.html(game_html, height=420)
+components.html(game_html, height=450)
